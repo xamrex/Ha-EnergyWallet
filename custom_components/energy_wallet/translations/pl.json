@@ -2,63 +2,35 @@
   "config": {
     "step": {
       "user": {
-        "title": "Liczniki energii z sieci",
-        "description": "Wybierz liczniki narastające (kWh) energii pobranej z sieci i oddanej do sieci. Wartości podpowiedziano z Energy Dashboard albo po nazwach sensorów, więc sprawdź je. Używaj liczników całkowitych, nie dziennych.",
+        "title": "Liczniki i taryfa",
+        "description": "Skonfiguruj liczniki energii, strefy czasowe, ceny i sensor ceny sprzedaży.",
         "data": {
           "import_entity": "Energia kupiona (pobór z sieci)",
-          "export_entity": "Energia sprzedana (oddanie do sieci)"
-        }
-      },
-      "tariff": {
-        "title": "Sprzedawca i taryfa",
-        "description": "Sprzedawca ustala cenę energii, a dystrybutora (OSD) wyznacza adres przyłącza.",
-        "data": {
-          "seller": "Sprzedawca",
-          "tariff_group": "Grupa taryfowa",
-          "dynamic": "Cena dynamiczna (giełdowa)",
-          "dso": "Dystrybutor (OSD)",
-          "phases": "Liczba faz przyłącza",
-          "capacity_tier": "Roczne zużycie (opłata mocowa)",
-          "sale_mode": "Rozliczenie oddanej energii"
+          "export_entity": "Energia sprzedana (oddanie do sieci)",
+          "peak_hours": "GODZINY SZCZYTU",
+          "offpeak_hours": "GODZINY POZA SZCZYTEM",
+          "price_peak": "Cena w godzinach szczytu",
+          "price_offpeak": "Cena poza godzinami szczytu",
+          "price_peak_depo": "Cena depozytu w szczycie",
+          "price_offpeak_depo": "Cena depozytu poza szczytem",
+          "sell_price_entity": "Cena sprzedaży",
+          "monthly_fee": "Opłata stała miesięczna"
         },
         "data_description": {
-          "dynamic": "Cena energii zależy od RDN (Fixing I TGE = RCE PSE) plus marża sprzedawcy. Dystrybucja nadal liczona jest wg grupy taryfowej.",
-          "sale_mode": "Net-billing: RCE = cena rynkowa 15-minutowa/godzinowa, RCEm = średnia miesięczna.",
-          "capacity_tier": "Opłata mocowa to ryczałt miesięczny zależny od rocznego poboru z sieci."
-        }
-      },
-      "prices": {
-        "title": "Ceny",
-        "description": "Ceny netto bez VAT. Dane wbudowane zweryfikowane: {verified}. Źródła:\n{sources}\n\nPuste pola nie mają jeszcze wartości w integracji; przepisz je z umowy lub taryfy.",
-        "data": {
-          "energy_peak": "Cena energii (strefa dzienna / całodobowa)",
-          "energy_offpeak": "Cena energii (strefa nocna/tańsza)",
-          "dynamic_markup": "Marża sprzedawcy do ceny giełdowej",
-          "dist_peak": "Zmienne opłaty dystrybucyjne (strefa dzienna / całodobowa)",
-          "dist_offpeak": "Zmienne opłaty dystrybucyjne (strefa tańsza)",
-          "offpeak_hours": "Godziny strefy tańszej",
-          "offpeak_hours_summer": "Godziny strefy tańszej latem (kwiecień-wrzesień)",
-          "excise": "Akcyza",
-          "weekend_offpeak": "Weekendy w strefie tańszej",
-          "holiday_offpeak": "Święta w strefie tańszej",
-          "fixed_monthly": "Opłaty stałe miesięcznie",
-          "vat": "Stawka VAT",
-          "deposit_multiplier": "Mnożnik depozytu",
-          "clamp_negative_rce": "Ujemne RCE licz jako zero"
-        },
-        "data_description": {
-          "dist_peak": "Suma za kWh: opłata sieciowa zmienna, jakościowa, OZE i kogeneracyjna.",
-          "offpeak_hours": "Zakresy po przecinku, np. 13-15,22-6",
-          "fixed_monthly": "Opłata handlowa, sieciowa stała, abonamentowa, mocowa i przejściowa, netto.",
-          "offpeak_hours_summer": "Tylko jeśli OSD zmienia strefy latem (np. PGE: 15-17,22-6). W przeciwnym razie zostaw puste.",
-          "excise": "Akcyza za kWh, doliczana do ceny energii przed VAT (0,005 zł/kWh).",
-          "deposit_multiplier": "Współczynnik dla wartości energii oddanej, jeśli Twoje rozliczenie go stosuje."
+          "peak_hours": "Zakresy po przecinku, np. 6:00-13:00,15:00-22:00",
+          "offpeak_hours": "Zakresy po przecinku, np. 13:00-15:00,22:00-6:00",
+          "price_peak": "Cena brutto za kWh w godzinach szczytu",
+          "price_offpeak": "Cena brutto za kWh poza godzinami szczytu",
+          "price_peak_depo": "Cena depozytu za kWh w szczycie (odejmowana od faktury)",
+          "price_offpeak_depo": "Cena depozytu za kWh poza szczytem (odejmowana od faktury)",
+          "sell_price_entity": "Sensor dostarczający aktualną cenę sprzedaży (PLN/kWh)",
+          "monthly_fee": "Stała opłata miesięczna (brutto, z VAT)"
         }
       }
     },
     "error": {
       "same_entity": "Pobór i oddanie muszą być różnymi sensorami.",
-      "invalid_hours": "Użyj zakresów w formacie 13-15,22-6."
+      "invalid_hours": "Użyj zakresów w formacie 6:00-13:00,15:00-22:00."
     },
     "abort": {
       "already_configured": "Ten licznik jest już skonfigurowany."
@@ -68,98 +40,34 @@
     "step": {
       "init": {
         "title": "Liczniki i taryfa",
+        "description": "Skonfiguruj liczniki energii, strefy czasowe, ceny i sensor ceny sprzedaży.",
         "data": {
           "import_entity": "Energia kupiona (pobór z sieci)",
           "export_entity": "Energia sprzedana (oddanie do sieci)",
-          "seller": "Sprzedawca",
-          "tariff_group": "Grupa taryfowa",
-          "dynamic": "Cena dynamiczna (giełdowa)",
-          "dso": "Dystrybutor (OSD)",
-          "phases": "Liczba faz przyłącza",
-          "capacity_tier": "Roczne zużycie (opłata mocowa)",
-          "sale_mode": "Rozliczenie oddanej energii"
+          "peak_hours": "GODZINY SZCZYTU",
+          "offpeak_hours": "GODZINY POZA SZCZYTEM",
+          "price_peak": "Cena w godzinach szczytu",
+          "price_offpeak": "Cena poza godzinami szczytu",
+          "price_peak_depo": "Cena depozytu w szczycie",
+          "price_offpeak_depo": "Cena depozytu poza szczytem",
+          "sell_price_entity": "Cena sprzedaży",
+          "monthly_fee": "Opłata stała miesięczna"
         },
         "data_description": {
-          "dynamic": "Cena energii zależy od RDN (Fixing I TGE = RCE PSE) plus marża sprzedawcy. Dystrybucja nadal liczona jest wg grupy taryfowej.",
-          "sale_mode": "Net-billing: RCE = cena rynkowa 15-minutowa/godzinowa, RCEm = średnia miesięczna.",
-          "capacity_tier": "Opłata mocowa to ryczałt miesięczny zależny od rocznego poboru z sieci."
-        }
-      },
-      "prices": {
-        "title": "Ceny",
-        "description": "Ceny netto bez VAT. Dane wbudowane zweryfikowane: {verified}. Źródła:\n{sources}\n\nPuste pola nie mają jeszcze wartości w integracji; przepisz je z umowy lub taryfy.",
-        "data": {
-          "energy_peak": "Cena energii (strefa dzienna / całodobowa)",
-          "energy_offpeak": "Cena energii (strefa nocna/tańsza)",
-          "dynamic_markup": "Marża sprzedawcy do ceny giełdowej",
-          "dist_peak": "Zmienne opłaty dystrybucyjne (strefa dzienna / całodobowa)",
-          "dist_offpeak": "Zmienne opłaty dystrybucyjne (strefa tańsza)",
-          "offpeak_hours": "Godziny strefy tańszej",
-          "offpeak_hours_summer": "Godziny strefy tańszej latem (kwiecień-wrzesień)",
-          "excise": "Akcyza",
-          "weekend_offpeak": "Weekendy w strefie tańszej",
-          "holiday_offpeak": "Święta w strefie tańszej",
-          "fixed_monthly": "Opłaty stałe miesięcznie",
-          "vat": "Stawka VAT",
-          "deposit_multiplier": "Mnożnik depozytu",
-          "clamp_negative_rce": "Ujemne RCE licz jako zero"
-        },
-        "data_description": {
-          "dist_peak": "Suma za kWh: opłata sieciowa zmienna, jakościowa, OZE i kogeneracyjna.",
-          "offpeak_hours": "Zakresy po przecinku, np. 13-15,22-6",
-          "fixed_monthly": "Opłata handlowa, sieciowa stała, abonamentowa, mocowa i przejściowa, netto.",
-          "offpeak_hours_summer": "Tylko jeśli OSD zmienia strefy latem (np. PGE: 15-17,22-6). W przeciwnym razie zostaw puste.",
-          "excise": "Akcyza za kWh, doliczana do ceny energii przed VAT (0,005 zł/kWh).",
-          "deposit_multiplier": "Współczynnik dla wartości energii oddanej, jeśli Twoje rozliczenie go stosuje."
+          "peak_hours": "Zakresy po przecinku, np. 6:00-13:00,15:00-22:00",
+          "offpeak_hours": "Zakresy po przecinku, np. 13:00-15:00,22:00-6:00",
+          "price_peak": "Cena brutto za kWh w godzinach szczytu",
+          "price_offpeak": "Cena brutto za kWh poza godzinami szczytu",
+          "price_peak_depo": "Cena depozytu za kWh w szczycie (odejmowana od faktury)",
+          "price_offpeak_depo": "Cena depozytu za kWh poza szczytem (odejmowana od faktury)",
+          "sell_price_entity": "Sensor dostarczający aktualną cenę sprzedaży (PLN/kWh)",
+          "monthly_fee": "Stała opłata miesięczna (brutto, z VAT)"
         }
       }
     },
     "error": {
       "same_entity": "Pobór i oddanie muszą być różnymi sensorami.",
-      "invalid_hours": "Użyj zakresów w formacie 13-15,22-6."
-    }
-  },
-  "selector": {
-    "seller": {
-      "options": {
-        "tauron": "TAURON Sprzedaż",
-        "pge": "PGE Obrót",
-        "enea": "Enea",
-        "energa": "Energa Obrót",
-        "eon": "E.ON Polska",
-        "other": "Inny / wpiszę ręcznie"
-      }
-    },
-    "dso": {
-      "options": {
-        "tauron_dystrybucja": "TAURON Dystrybucja",
-        "pge_dystrybucja": "PGE Dystrybucja",
-        "enea_operator": "Enea Operator",
-        "energa_operator": "Energa Operator",
-        "stoen_operator": "Stoen Operator",
-        "other": "Inny / wpiszę ręcznie"
-      }
-    },
-    "phases": {
-      "options": {
-        "1": "Jednofazowe",
-        "3": "Trójfazowe"
-      }
-    },
-    "capacity_tier": {
-      "options": {
-        "none": "Nie dotyczy / wpiszę sam",
-        "lt500": "Poniżej 500 kWh",
-        "500_1200": "500-1200 kWh",
-        "1200_2800": "1200-2800 kWh",
-        "gt2800": "Powyżej 2800 kWh"
-      }
-    },
-    "sale_mode": {
-      "options": {
-        "rce": "RCE (15 min / godzinowe)",
-        "rcem": "RCEm (miesięczne)"
-      }
+      "invalid_hours": "Użyj zakresów w formacie 6:00-13:00,15:00-22:00."
     }
   },
   "entity": {
@@ -202,13 +110,13 @@
       },
       "sell_price": {
         "name": "Aktualna cena sprzedaży"
+      },
+      "invoice_no_correction": {
+        "name": "Faktura w tym miesiącu bez korekty"
+      },
+      "invoice_with_deposit": {
+        "name": "Faktura w tym miesiącu z depozytem"
       }
-    }
-  },
-  "issues": {
-    "tariffs_outdated": {
-      "title": "Taryfy w Energy Wallet są nieaktualne",
-      "description": "Wbudowane dane taryf są z roku {catalog_year}, a mamy {year}. Zaktualizuj integrację albo popraw ceny w jej opcjach."
     }
   },
   "services": {
@@ -223,6 +131,24 @@
         "price": {
           "name": "Cena",
           "description": "RCEm w zł/kWh. Puste = wyczyść."
+        },
+        "config_entry_id": {
+          "name": "Portfel",
+          "description": "Ogranicz do jednego portfela; puste = wszystkie."
+        }
+      }
+    },
+    "set_balance_year": {
+      "name": "Ustaw bilans roczny",
+      "description": "Nadpisz bilans roczny na podaną wartość (np. po korekcie z zakładu energetycznego).",
+      "fields": {
+        "value": {
+          "name": "Wartość",
+          "description": "Wartość bilansu w PLN."
+        },
+        "year": {
+          "name": "Rok",
+          "description": "Rok w formacie RRRR. Domyślnie bieżący rok."
         },
         "config_entry_id": {
           "name": "Portfel",

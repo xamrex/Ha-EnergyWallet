@@ -2,63 +2,35 @@
   "config": {
     "step": {
       "user": {
-        "title": "Grid energy meters",
-        "description": "Pick cumulative counters (kWh) of energy taken from and fed into the grid. They were pre-filled from the Energy dashboard or guessed from sensor names, so check them. Use lifetime totals, not daily counters.",
+        "title": "Meters and tariff",
+        "description": "Configure your energy meters, time zones, prices and sell price sensor.",
         "data": {
           "import_entity": "Energy bought (grid import)",
-          "export_entity": "Energy sold (grid export)"
-        }
-      },
-      "tariff": {
-        "title": "Seller and tariff",
-        "description": "Seller sets the energy price, the distribution system operator (DSO) is fixed by your address.",
-        "data": {
-          "seller": "Seller",
-          "tariff_group": "Tariff group",
-          "dynamic": "Dynamic (exchange-indexed) price",
-          "dso": "Distribution system operator",
-          "phases": "Connection phases",
-          "capacity_tier": "Yearly consumption (capacity fee)",
-          "sale_mode": "Export settlement"
+          "export_entity": "Energy sold (grid export)",
+          "peak_hours": "PEAK HOURS",
+          "offpeak_hours": "OFF PEAK HOURS",
+          "price_peak": "Price in Peak Hours",
+          "price_offpeak": "Price in OFF Peak Hours",
+          "price_peak_depo": "Price Peak Hours Depo",
+          "price_offpeak_depo": "Price OFF Peak Hours Depo",
+          "sell_price_entity": "Sell Price",
+          "monthly_fee": "Monthly constant fee"
         },
         "data_description": {
-          "dynamic": "Energy price follows the day-ahead market (TGE Fixing I = PSE RCE) plus the seller's markup. Distribution is still charged by the tariff group.",
-          "sale_mode": "Net-billing: RCE = 15-minute/hourly market price, RCEm = monthly average.",
-          "capacity_tier": "The capacity fee (opłata mocowa) is a flat monthly charge chosen by yearly grid consumption."
-        }
-      },
-      "prices": {
-        "title": "Prices",
-        "description": "Net prices without VAT. Bundled data verified: {verified}. Sources:\n{sources}\n\nEmpty fields have no bundled value yet; copy them from your contract or tariff.",
-        "data": {
-          "energy_peak": "Energy price (day / single zone)",
-          "energy_offpeak": "Energy price (off-peak zone)",
-          "dynamic_markup": "Seller markup on exchange price",
-          "dist_peak": "Variable distribution charges (day / single zone)",
-          "dist_offpeak": "Variable distribution charges (off-peak zone)",
-          "offpeak_hours": "Off-peak hours",
-          "offpeak_hours_summer": "Off-peak hours in summer (April-September)",
-          "excise": "Excise duty",
-          "weekend_offpeak": "Weekends are off-peak",
-          "holiday_offpeak": "Public holidays are off-peak",
-          "fixed_monthly": "Fixed monthly fees",
-          "vat": "VAT rate",
-          "deposit_multiplier": "Deposit multiplier",
-          "clamp_negative_rce": "Treat negative RCE as zero"
-        },
-        "data_description": {
-          "dist_peak": "Sum of the variable network charge, quality charge, OZE and cogeneration charges per kWh.",
-          "offpeak_hours": "Comma separated ranges, e.g. 13-15,22-6",
-          "fixed_monthly": "Trade fee, fixed network charge, subscription, capacity and transitional charges, net.",
-          "offpeak_hours_summer": "Only if your DSO moves the zones in summer (e.g. PGE: 15-17,22-6). Leave empty otherwise.",
-          "excise": "Akcyza per kWh, added to the energy price before VAT (0.005 PLN/kWh).",
-          "deposit_multiplier": "Factor applied to the value of exported energy, if your settlement uses one."
+          "peak_hours": "Comma separated ranges, e.g. 6:00-13:00,15:00-22:00",
+          "offpeak_hours": "Comma separated ranges, e.g. 13:00-15:00,22:00-6:00",
+          "price_peak": "Gross price per kWh during peak hours",
+          "price_offpeak": "Gross price per kWh during off-peak hours",
+          "price_peak_depo": "Deposit price per kWh during peak hours (subtracted from invoice)",
+          "price_offpeak_depo": "Deposit price per kWh during off-peak hours (subtracted from invoice)",
+          "sell_price_entity": "Sensor entity providing the current sell price (PLN/kWh)",
+          "monthly_fee": "Fixed monthly fee (gross, with VAT)"
         }
       }
     },
     "error": {
       "same_entity": "Import and export must be different sensors.",
-      "invalid_hours": "Use ranges like 13-15,22-6."
+      "invalid_hours": "Use ranges like 6:00-13:00,15:00-22:00."
     },
     "abort": {
       "already_configured": "This meter is already configured."
@@ -68,98 +40,34 @@
     "step": {
       "init": {
         "title": "Meters and tariff",
+        "description": "Configure your energy meters, time zones, prices and sell price sensor.",
         "data": {
           "import_entity": "Energy bought (grid import)",
           "export_entity": "Energy sold (grid export)",
-          "seller": "Seller",
-          "tariff_group": "Tariff group",
-          "dynamic": "Dynamic (exchange-indexed) price",
-          "dso": "Distribution system operator",
-          "phases": "Connection phases",
-          "capacity_tier": "Yearly consumption (capacity fee)",
-          "sale_mode": "Export settlement"
+          "peak_hours": "PEAK HOURS",
+          "offpeak_hours": "OFF PEAK HOURS",
+          "price_peak": "Price in Peak Hours",
+          "price_offpeak": "Price in OFF Peak Hours",
+          "price_peak_depo": "Price Peak Hours Depo",
+          "price_offpeak_depo": "Price OFF Peak Hours Depo",
+          "sell_price_entity": "Sell Price",
+          "monthly_fee": "Monthly constant fee"
         },
         "data_description": {
-          "dynamic": "Energy price follows the day-ahead market (TGE Fixing I = PSE RCE) plus the seller's markup. Distribution is still charged by the tariff group.",
-          "sale_mode": "Net-billing: RCE = 15-minute/hourly market price, RCEm = monthly average.",
-          "capacity_tier": "The capacity fee (opłata mocowa) is a flat monthly charge chosen by yearly grid consumption."
-        }
-      },
-      "prices": {
-        "title": "Prices",
-        "description": "Net prices without VAT. Bundled data verified: {verified}. Sources:\n{sources}\n\nEmpty fields have no bundled value yet; copy them from your contract or tariff.",
-        "data": {
-          "energy_peak": "Energy price (day / single zone)",
-          "energy_offpeak": "Energy price (off-peak zone)",
-          "dynamic_markup": "Seller markup on exchange price",
-          "dist_peak": "Variable distribution charges (day / single zone)",
-          "dist_offpeak": "Variable distribution charges (off-peak zone)",
-          "offpeak_hours": "Off-peak hours",
-          "offpeak_hours_summer": "Off-peak hours in summer (April-September)",
-          "excise": "Excise duty",
-          "weekend_offpeak": "Weekends are off-peak",
-          "holiday_offpeak": "Public holidays are off-peak",
-          "fixed_monthly": "Fixed monthly fees",
-          "vat": "VAT rate",
-          "deposit_multiplier": "Deposit multiplier",
-          "clamp_negative_rce": "Treat negative RCE as zero"
-        },
-        "data_description": {
-          "dist_peak": "Sum of the variable network charge, quality charge, OZE and cogeneration charges per kWh.",
-          "offpeak_hours": "Comma separated ranges, e.g. 13-15,22-6",
-          "fixed_monthly": "Trade fee, fixed network charge, subscription, capacity and transitional charges, net.",
-          "offpeak_hours_summer": "Only if your DSO moves the zones in summer (e.g. PGE: 15-17,22-6). Leave empty otherwise.",
-          "excise": "Akcyza per kWh, added to the energy price before VAT (0.005 PLN/kWh).",
-          "deposit_multiplier": "Factor applied to the value of exported energy, if your settlement uses one."
+          "peak_hours": "Comma separated ranges, e.g. 6:00-13:00,15:00-22:00",
+          "offpeak_hours": "Comma separated ranges, e.g. 13:00-15:00,22:00-6:00",
+          "price_peak": "Gross price per kWh during peak hours",
+          "price_offpeak": "Gross price per kWh during off-peak hours",
+          "price_peak_depo": "Deposit price per kWh during peak hours (subtracted from invoice)",
+          "price_offpeak_depo": "Deposit price per kWh during off-peak hours (subtracted from invoice)",
+          "sell_price_entity": "Sensor entity providing the current sell price (PLN/kWh)",
+          "monthly_fee": "Fixed monthly fee (gross, with VAT)"
         }
       }
     },
     "error": {
       "same_entity": "Import and export must be different sensors.",
-      "invalid_hours": "Use ranges like 13-15,22-6."
-    }
-  },
-  "selector": {
-    "seller": {
-      "options": {
-        "tauron": "TAURON Sprzedaż",
-        "pge": "PGE Obrót",
-        "enea": "Enea",
-        "energa": "Energa Obrót",
-        "eon": "E.ON Polska",
-        "other": "Other / enter manually"
-      }
-    },
-    "dso": {
-      "options": {
-        "tauron_dystrybucja": "TAURON Dystrybucja",
-        "pge_dystrybucja": "PGE Dystrybucja",
-        "enea_operator": "Enea Operator",
-        "energa_operator": "Energa Operator",
-        "stoen_operator": "Stoen Operator",
-        "other": "Other / enter manually"
-      }
-    },
-    "phases": {
-      "options": {
-        "1": "Single-phase",
-        "3": "Three-phase"
-      }
-    },
-    "capacity_tier": {
-      "options": {
-        "none": "Not charged / enter myself",
-        "lt500": "Below 500 kWh",
-        "500_1200": "500-1200 kWh",
-        "1200_2800": "1200-2800 kWh",
-        "gt2800": "Above 2800 kWh"
-      }
-    },
-    "sale_mode": {
-      "options": {
-        "rce": "RCE (15 min / hourly)",
-        "rcem": "RCEm (monthly)"
-      }
+      "invalid_hours": "Use ranges like 6:00-13:00,15:00-22:00."
     }
   },
   "entity": {
@@ -202,13 +110,13 @@
       },
       "sell_price": {
         "name": "Current sell price"
+      },
+      "invoice_no_correction": {
+        "name": "Invoice this month (no correction)"
+      },
+      "invoice_with_deposit": {
+        "name": "Invoice this month (with deposit)"
       }
-    }
-  },
-  "issues": {
-    "tariffs_outdated": {
-      "title": "Energy Wallet tariffs are outdated",
-      "description": "The bundled tariff data is for {catalog_year}, but it is {year} now. Update the integration or correct the prices in its options."
     }
   },
   "services": {
@@ -223,6 +131,24 @@
         "price": {
           "name": "Price",
           "description": "RCEm in PLN/kWh. Leave empty to clear."
+        },
+        "config_entry_id": {
+          "name": "Wallet",
+          "description": "Limit to one wallet; all when empty."
+        }
+      }
+    },
+    "set_balance_year": {
+      "name": "Set yearly balance",
+      "description": "Override the yearly balance to a specific value (e.g. after a correction from the energy company).",
+      "fields": {
+        "value": {
+          "name": "Value",
+          "description": "Balance value in PLN."
+        },
+        "year": {
+          "name": "Year",
+          "description": "Year in YYYY format. Defaults to the current year."
         },
         "config_entry_id": {
           "name": "Wallet",

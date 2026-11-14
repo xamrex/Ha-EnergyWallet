@@ -6,45 +6,24 @@ DOMAIN = "energy_wallet"
 
 CONF_IMPORT_ENTITY = "import_entity"
 CONF_EXPORT_ENTITY = "export_entity"
-CONF_SELLER = "seller"
-CONF_DSO = "dso"
-CONF_TARIFF_GROUP = "tariff_group"
-CONF_DYNAMIC = "dynamic"
-CONF_PHASES = "phases"
-CONF_SALE_MODE = "sale_mode"
 
-CONF_ENERGY_PEAK = "energy_peak"
-CONF_ENERGY_OFFPEAK = "energy_offpeak"
-CONF_DYNAMIC_MARKUP = "dynamic_markup"
-CONF_DIST_PEAK = "dist_peak"
-CONF_DIST_OFFPEAK = "dist_offpeak"
+# Simplified config - peak/off-peak hours
+CONF_PEAK_HOURS = "peak_hours"
 CONF_OFFPEAK_HOURS = "offpeak_hours"
-CONF_OFFPEAK_HOURS_SUMMER = "offpeak_hours_summer"
-CONF_EXCISE = "excise"
-CONF_CAPACITY_TIER = "capacity_tier"
-CONF_WEEKEND_OFFPEAK = "weekend_offpeak"
-CONF_HOLIDAY_OFFPEAK = "holiday_offpeak"
-CONF_FIXED_MONTHLY = "fixed_monthly"
-CONF_VAT = "vat"
-CONF_DEPOSIT_MULTIPLIER = "deposit_multiplier"
-CONF_CLAMP_NEGATIVE = "clamp_negative_rce"
-CONF_MAX_POWER_KW = "max_power_kw"
 
-SALE_MODE_RCE = "rce"
-SALE_MODE_RCEM = "rcem"
-SALE_MODES = [SALE_MODE_RCE, SALE_MODE_RCEM]
+# Simplified config - buy prices (gross)
+CONF_PRICE_PEAK = "price_peak"
+CONF_PRICE_OFFPEAK = "price_offpeak"
 
-TARIFF_GROUPS = ["G11", "G12", "G12w"]
-TWO_ZONE_GROUPS = {"G12", "G12w"}
+# Deposit prices for invoice correction
+CONF_PRICE_PEAK_DEPO = "price_peak_depo"
+CONF_PRICE_OFFPEAK_DEPO = "price_offpeak_depo"
 
-OTHER = "other"
+# Sell price entity
+CONF_SELL_PRICE_ENTITY = "sell_price_entity"
 
-DEFAULT_VAT = 0.23
-DEFAULT_EXCISE = 0.005
-CAPACITY_TIERS = ["none", "lt500", "500_1200", "1200_2800", "gt2800"]
-DEFAULT_CAPACITY_TIER = "1200_2800"
-DEFAULT_DEPOSIT_MULTIPLIER = 1.0
-DEFAULT_MAX_POWER_KW = 50.0
+# Monthly constant fee (gross)
+CONF_MONTHLY_FEE = "monthly_fee"
 
 PERIOD_TODAY = "today"
 PERIOD_MONTH = "month"

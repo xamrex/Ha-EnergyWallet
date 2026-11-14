@@ -20,3 +20,26 @@ set_rcem:
       selector:
         config_entry:
           integration: energy_wallet
+
+set_balance_year:
+  fields:
+    value:
+      required: true
+      example: -150.50
+      selector:
+        number:
+          min: -100000
+          max: 100000
+          step: any
+          mode: box
+          unit_of_measurement: PLN
+    year:
+      required: false
+      example: "2026"
+      selector:
+        text:
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: energy_wallet

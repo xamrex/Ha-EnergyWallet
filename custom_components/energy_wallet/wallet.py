@@ -18,6 +18,7 @@ SLOT_SECONDS = 15 * 60
 PENDING_MAX_AGE = timedelta(days=3)
 
 PriceFn = Callable[[datetime], float | None]
+ZoneFn = Callable[[datetime], str]
 
 
 def slot_start(ts: datetime) -> int:
@@ -27,7 +28,11 @@ def slot_start(ts: datetime) -> int:
 
 
 def _empty_day() -> dict[str, float]:
-    return {"imp": 0.0, "exp": 0.0, "cost": 0.0, "rev": 0.0, "imp_unpriced": 0.0, "exp_unpriced": 0.0}
+    return {
+        "imp": 0.0, "exp": 0.0, "cost": 0.0, "rev": 0.0,
+        "imp_unpriced": 0.0, "exp_unpriced": 0.0,
+        "imp_peak": 0.0, "imp_offpeak": 0.0,
+    }
 
 
 class Wallet:
@@ -41,6 +46,7 @@ class Wallet:
         self.totals: dict[str, float] = data.get("totals", {"cost": 0.0, "rev": 0.0, "imp": 0.0, "exp": 0.0})
         self.rce_daily_mean: dict[str, float] = data.get("rce_daily_mean", {})
         self.rcem_override: dict[str, float] = data.get("rcem_override", {})
+        self.balance_year_override: dict[str, float] = data.get("balance_year_override", {})
         self.retention_days = retention_days
 
     def as_dict(self) -> dict[str, Any]:
@@ -51,6 +57,7 @@ class Wallet:
             "totals": self.totals,
             "rce_daily_mean": self.rce_daily_mean,
             "rcem_override": self.rcem_override,
+            "balance_year_override": self.balance_year_override,
         }
 
     def ingest_reading(
@@ -61,13 +68,7 @@ class Wallet:
         resets_allowed: bool,
         max_power_kw: float,
     ) -> tuple[float, bool]:
-        """Feed a cumulative meter reading; return (delta kWh, rejected).
-
-        ``resets_allowed`` matches HA's ``total_increasing``: a drop means the
-        meter restarted from zero. Otherwise a drop is treated as a glitch and
-        energy is only counted above the highest value seen so far, so
-        inverters that briefly report 0 do not double count.
-        """
+        """Feed a cumulative meter reading; return (delta kWh, rejected)."""
         meter = self.meters.get(kind)
         iso = ts.isoformat()
         if meter is None:
@@ -91,14 +92,21 @@ class Wallet:
         meter.update(last=value_kwh, high=high, ts=iso)
         return delta, rejected
 
-    def add_energy(self, kind: str, kwh: float, ts: datetime, day_key: str) -> None:
+    def add_energy(self, kind: str, kwh: float, ts: datetime, day_key: str, zone: str = "peak") -> None:
         """Record energy in its day and queue it for pricing."""
         if kwh <= 0:
             return
         field = "imp" if kind == IMPORT else "exp"
-        self.days.setdefault(day_key, _empty_day())[field] += kwh
+        day = self.days.setdefault(day_key, _empty_day())
+        day[field] += kwh
         self.totals[field] = self.totals.get(field, 0.0) + kwh
-        slot = self.pending.setdefault(str(slot_start(ts)), {"day": day_key, "imp": 0.0, "exp": 0.0})
+
+        # Track import energy by zone for deposit calculation
+        if kind == IMPORT:
+            zone_field = f"imp_{zone}"
+            day[zone_field] = day.get(zone_field, 0.0) + kwh
+
+        slot = self.pending.setdefault(str(slot_start(ts)), {"day": day_key, "imp": 0.0, "exp": 0.0, "zone": zone})
         slot[field] += kwh
 
     def settle(self, cost_fn: PriceFn, rev_fn: PriceFn, now: datetime) -> bool:
@@ -141,13 +149,13 @@ class Wallet:
             return None
         return max(0.0, sum(values) / len(values) / 1000)
 
-    def summary(self, prefix: str, sale_mode: str, multiplier: float = 1.0) -> dict[str, float]:
-        """Totals for all days whose key starts with ``prefix`` (YYYY, YYYY-MM, YYYY-MM-DD)."""
-        out = {k: 0.0 for k in ("imp", "exp", "cost", "rev", "imp_unpriced", "exp_unpriced")}
+    def summary(self, prefix: str, sale_mode: str = "rce", multiplier: float = 1.0) -> dict[str, float]:
+        """Totals for all days whose key starts with ``prefix``."""
+        out = {k: 0.0 for k in ("imp", "exp", "cost", "rev", "imp_unpriced", "exp_unpriced", "imp_peak", "imp_offpeak")}
         for key, day in self.days.items():
             if not key.startswith(prefix):
                 continue
-            for field in ("imp", "exp", "cost", "imp_unpriced", "exp_unpriced"):
+            for field in ("imp", "exp", "cost", "imp_unpriced", "exp_unpriced", "imp_peak", "imp_offpeak"):
                 out[field] += day.get(field, 0.0)
             if sale_mode == "rcem":
                 rcem = self.rcem(key[:7])
@@ -156,11 +164,17 @@ class Wallet:
                 else:
                     out["rev"] += day.get("exp", 0.0) * rcem * multiplier
             else:
-                # Hourly/15-min RCE revenue is stored without the multiplier,
-                # so changing it in options applies retroactively.
                 out["rev"] += day.get("rev", 0.0) * multiplier
         out["balance"] = out["rev"] - out["cost"]
         return out
+
+    def set_balance_year_override(self, year: str, value: float) -> None:
+        """Set an override for the yearly balance."""
+        self.balance_year_override[year] = value
+
+    def clear_balance_year_override(self, year: str) -> None:
+        """Clear the yearly balance override."""
+        self.balance_year_override.pop(year, None)
 
     def prune(self, today_key: str) -> None:
         """Drop days and RCE means older than the retention window."""

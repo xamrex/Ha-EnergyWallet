@@ -1,4 +1,4 @@
-"""Sensors exposing purchase cost, sale revenue and balance."""
+"""Sensors exposing purchase cost, sale revenue, balance, and invoices."""
 
 from __future__ import annotations
 
@@ -65,7 +65,6 @@ def _period_descriptions(period: str) -> list[WalletSensorDescription]:
             attrs_fn=lambda m: {
                 "energy_kwh": round(summary(m)["exp"], 3),
                 "unpriced_kwh": round(summary(m)["exp_unpriced"], 3),
-                "sale_mode": m.sale_mode,
             },
             **money,
         ),
@@ -74,9 +73,13 @@ def _period_descriptions(period: str) -> list[WalletSensorDescription]:
             translation_key=f"balance_{period}",
             role="balance",
             period=period,
-            value_fn=lambda m: round(summary(m)["balance"], 4),
+            value_fn=lambda m: (
+                round(m.balance_year_value(), 4)
+                if period == "year"
+                else round(summary(m)["balance"], 4)
+            ),
             attrs_fn=lambda m: {
-                "fixed_monthly_gross": round(m.prices.fixed_monthly_gross, 2),
+                "monthly_fee": round(m.prices.monthly_fee, 2),
             },
             **money,
         ),
@@ -125,7 +128,42 @@ DESCRIPTIONS: list[WalletSensorDescription] = [
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=4,
         value_fn=lambda m: m.current_sell_price(),
-        attrs_fn=lambda m: {"sale_mode": m.sale_mode},
+    ),
+    # Invoice sensors
+    WalletSensorDescription(
+        key="invoice_no_correction",
+        translation_key="invoice_no_correction",
+        role="invoice",
+        period="month",
+        device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=CURRENCY,
+        state_class=SensorStateClass.TOTAL,
+        suggested_display_precision=2,
+        value_fn=lambda m: round(m.invoice_no_correction(), 2),
+        attrs_fn=lambda m: {
+            "monthly_fee": round(m.prices.monthly_fee, 2),
+            "purchase_cost_month": round(m.summary("month")["cost"], 2),
+        },
+    ),
+    WalletSensorDescription(
+        key="invoice_with_deposit",
+        translation_key="invoice_with_deposit",
+        role="invoice",
+        period="month",
+        device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=CURRENCY,
+        state_class=SensorStateClass.TOTAL,
+        suggested_display_precision=2,
+        value_fn=lambda m: round(m.invoice_with_deposit(), 2),
+        attrs_fn=lambda m: {
+            "monthly_fee": round(m.prices.monthly_fee, 2),
+            "purchase_cost_month": round(m.summary("month")["cost"], 2),
+            "deposit_correction": round(m.deposit_correction_total(), 2),
+            "imp_peak_kwh": round(m.summary("month").get("imp_peak", 0.0), 3),
+            "imp_offpeak_kwh": round(m.summary("month").get("imp_offpeak", 0.0), 3),
+            "price_peak_depo": m.prices.price_peak_depo,
+            "price_offpeak_depo": m.prices.price_offpeak_depo,
+        },
     ),
 ]
 
@@ -142,7 +180,6 @@ class WalletSensor(SensorEntity):
 
     _attr_has_entity_name = True
     _attr_should_poll = False
-    # The forecast attribute is large and changes constantly.
     _unrecorded_attributes = frozenset({"forecast"})
     entity_description: WalletSensorDescription
 
