@@ -16,6 +16,8 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_DEPOSIT_EXPIRY_MONTHS,
+    CONF_DEPOSIT_WARNING_DAYS,
     CONF_EXPORT_ENTITY,
     CONF_IMPORT_ENTITY,
     CONF_MONTHLY_FEE,
@@ -200,7 +202,34 @@ class WalletManager:
         self.wallet.clear_balance_year_override(year)
         self._settle()
 
+    def set_deposit_month(
+        self, month: str, export: float | None = None, import_: float | None = None, value: float | None = None
+    ) -> None:
+        """Set/overwrite one month's deposit export+import (manual correction or historical seed)."""
+        self.wallet.set_deposit_month(month, export, import_, value)
+        self._settle()
+
+    def set_deposit_starting_block(self, origin: str, amount: float) -> None:
+        """Set the one-time starting deposit block for months before any tracked history."""
+        self.wallet.set_deposit_start_block(origin, amount)
+        self._settle()
+
     # Values for entities
+
+    @property
+    def deposit_expiry_months(self) -> int:
+        return int(self.conf.get(CONF_DEPOSIT_EXPIRY_MONTHS) or 12)
+
+    @property
+    def deposit_warning_days(self) -> int:
+        return int(self.conf.get(CONF_DEPOSIT_WARNING_DAYS) or 60)
+
+    def deposit_buckets(self) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        return self.wallet.deposit_buckets(self.deposit_expiry_months, dt_util.now().date())
+
+    def deposit_actual_balance(self) -> float:
+        buckets, _ledger = self.deposit_buckets()
+        return round(sum(b["remaining"] for b in buckets), 2)
 
     def period_prefix(self, period: str) -> str:
         today = dt_util.now().date().isoformat()
