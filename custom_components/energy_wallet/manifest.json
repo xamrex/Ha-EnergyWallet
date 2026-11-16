@@ -6,16 +6,16 @@
     "frontend"
   ],
   "codeowners": [
-    "@gratak"
+    "@xamrex"
   ],
   "config_flow": true,
   "dependencies": [
     "http"
   ],
-  "documentation": "https://github.com/gratak/ha-energy-wallet",
+  "documentation": "https://github.com/xamrex/Ha-EnergyWallet",
   "integration_type": "service",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/gratak/ha-energy-wallet/issues",
+  "issue_tracker": "https://github.com/xamrex/Ha-EnergyWallet/issues",
   "requirements": [],
-  "version": "0.1.2"
+  "version": "0.1.3"
 }
