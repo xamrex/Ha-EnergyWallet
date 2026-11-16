@@ -43,3 +43,16 @@ set_balance_year:
       selector:
         config_entry:
           integration: energy_wallet
+
+clear_balance_year:
+  fields:
+    year:
+      required: false
+      example: "2026"
+      selector:
+        text:
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: energy_wallet

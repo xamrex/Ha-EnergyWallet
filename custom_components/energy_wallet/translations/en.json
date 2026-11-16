@@ -155,6 +155,20 @@
           "description": "Limit to one wallet; all when empty."
         }
       }
+    },
+    "clear_balance_year": {
+      "name": "Clear yearly balance",
+      "description": "Clear a previously set yearly balance override so the sensor resumes computing live from usage data.",
+      "fields": {
+        "year": {
+          "name": "Year",
+          "description": "Year in YYYY format. Defaults to the current year."
+        },
+        "config_entry_id": {
+          "name": "Wallet",
+          "description": "Limit to one wallet; all when empty."
+        }
+      }
     }
   }
 }

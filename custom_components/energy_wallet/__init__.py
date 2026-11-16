@@ -43,6 +43,14 @@ SET_BALANCE_YEAR_SCHEMA = vol.Schema(
     }
 )
 
+SERVICE_CLEAR_BALANCE_YEAR = "clear_balance_year"
+CLEAR_BALANCE_YEAR_SCHEMA = vol.Schema(
+    {
+        vol.Optional("year"): vol.Match(r"^\d{4}$"),
+        vol.Optional("config_entry_id"): cv.string,
+    }
+)
+
 type EnergyWalletConfigEntry = ConfigEntry[WalletManager]
 
 
@@ -67,6 +75,18 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                 entry.runtime_data.set_balance_year(year, value)
 
     hass.services.async_register(DOMAIN, SERVICE_SET_BALANCE_YEAR, set_balance_year, schema=SET_BALANCE_YEAR_SCHEMA)
+
+    async def clear_balance_year(call: ServiceCall) -> None:
+        entry_id = call.data.get("config_entry_id")
+        from homeassistant.util import dt as dt_util
+        year = call.data.get("year") or dt_util.now().date().isoformat()[:4]
+        for entry in hass.config_entries.async_loaded_entries(DOMAIN):
+            if entry_id in (None, entry.entry_id):
+                entry.runtime_data.clear_balance_year(year)
+
+    hass.services.async_register(
+        DOMAIN, SERVICE_CLEAR_BALANCE_YEAR, clear_balance_year, schema=CLEAR_BALANCE_YEAR_SCHEMA
+    )
     return True
 
 

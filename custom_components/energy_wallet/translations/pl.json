@@ -155,6 +155,20 @@
           "description": "Ogranicz do jednego portfela; puste = wszystkie."
         }
       }
+    },
+    "clear_balance_year": {
+      "name": "Wyczyść bilans roczny",
+      "description": "Usuń wcześniej ustawioną korektę bilansu rocznego, aby sensor znów liczył się na bieżąco z danych zużycia.",
+      "fields": {
+        "year": {
+          "name": "Rok",
+          "description": "Rok w formacie RRRR. Domyślnie bieżący rok."
+        },
+        "config_entry_id": {
+          "name": "Portfel",
+          "description": "Ogranicz do jednego portfela; puste = wszystkie."
+        }
+      }
     }
   }
 }
