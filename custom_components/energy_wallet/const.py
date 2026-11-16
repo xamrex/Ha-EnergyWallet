@@ -25,6 +25,18 @@ CONF_SELL_PRICE_ENTITY = "sell_price_entity"
 # Monthly constant fee (gross)
 CONF_MONTHLY_FEE = "monthly_fee"
 
+# Deposit FIFO (net-billing deposit block tracking)
+CONF_DEPOSIT_EXPIRY_MONTHS = "deposit_expiry_months"
+CONF_DEPOSIT_WARNING_DAYS = "deposit_warning_days"
+
+# Taryfa G12 - static tariff cost breakdown (gross, PLN / PLN per kWh)
+CONF_G12_DIST_FIXED = "g12_distribution_fixed"
+CONF_G12_SALE_FIXED = "g12_sale_fixed"
+CONF_G12_DIST_DAY = "g12_distribution_day"
+CONF_G12_DIST_NIGHT = "g12_distribution_night"
+CONF_G12_SALE_DAY = "g12_sale_day"
+CONF_G12_SALE_NIGHT = "g12_sale_night"
+
 PERIOD_TODAY = "today"
 PERIOD_MONTH = "month"
 PERIOD_YEAR = "year"

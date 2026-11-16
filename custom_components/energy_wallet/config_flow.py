@@ -11,7 +11,15 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .const import (
+    CONF_DEPOSIT_EXPIRY_MONTHS,
+    CONF_DEPOSIT_WARNING_DAYS,
     CONF_EXPORT_ENTITY,
+    CONF_G12_DIST_DAY,
+    CONF_G12_DIST_FIXED,
+    CONF_G12_DIST_NIGHT,
+    CONF_G12_SALE_DAY,
+    CONF_G12_SALE_FIXED,
+    CONF_G12_SALE_NIGHT,
     CONF_IMPORT_ENTITY,
     CONF_MONTHLY_FEE,
     CONF_OFFPEAK_HOURS,
@@ -38,6 +46,8 @@ MONTHLY = selector.NumberSelector(
     selector.NumberSelectorConfig(min=0, max=10000, step=0.01, mode="box", unit_of_measurement="zł")
 )
 HOURS_TEXT = selector.TextSelector()
+MONTHS_INT = selector.NumberSelector(selector.NumberSelectorConfig(min=1, max=36, step=1, mode="box"))
+DAYS_INT = selector.NumberSelector(selector.NumberSelectorConfig(min=0, max=365, step=1, mode="box"))
 
 
 def _default(value: Any) -> dict[str, Any]:
@@ -59,6 +69,14 @@ def full_schema(defaults: dict[str, Any]) -> vol.Schema:
             vol.Required(CONF_PRICE_OFFPEAK_DEPO, **_default(defaults.get(CONF_PRICE_OFFPEAK_DEPO))): PRICE,
             vol.Required(CONF_SELL_PRICE_ENTITY, **_default(defaults.get(CONF_SELL_PRICE_ENTITY))): ENTITY_SELECTOR,
             vol.Required(CONF_MONTHLY_FEE, **_default(defaults.get(CONF_MONTHLY_FEE, 0))): MONTHLY,
+            vol.Optional(CONF_DEPOSIT_EXPIRY_MONTHS, **_default(defaults.get(CONF_DEPOSIT_EXPIRY_MONTHS, 12))): MONTHS_INT,
+            vol.Optional(CONF_DEPOSIT_WARNING_DAYS, **_default(defaults.get(CONF_DEPOSIT_WARNING_DAYS, 60))): DAYS_INT,
+            vol.Optional(CONF_G12_DIST_FIXED, **_default(defaults.get(CONF_G12_DIST_FIXED, 0))): MONTHLY,
+            vol.Optional(CONF_G12_SALE_FIXED, **_default(defaults.get(CONF_G12_SALE_FIXED, 0))): MONTHLY,
+            vol.Optional(CONF_G12_DIST_DAY, **_default(defaults.get(CONF_G12_DIST_DAY, 0))): PRICE,
+            vol.Optional(CONF_G12_DIST_NIGHT, **_default(defaults.get(CONF_G12_DIST_NIGHT, 0))): PRICE,
+            vol.Optional(CONF_G12_SALE_DAY, **_default(defaults.get(CONF_G12_SALE_DAY, 0))): PRICE,
+            vol.Optional(CONF_G12_SALE_NIGHT, **_default(defaults.get(CONF_G12_SALE_NIGHT, 0))): PRICE,
         }
     )
 
