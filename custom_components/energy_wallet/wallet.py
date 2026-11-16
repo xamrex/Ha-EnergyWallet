@@ -47,6 +47,8 @@ class Wallet:
         self.rce_daily_mean: dict[str, float] = data.get("rce_daily_mean", {})
         self.rcem_override: dict[str, float] = data.get("rcem_override", {})
         self.balance_year_override: dict[str, float] = data.get("balance_year_override", {})
+        self.deposit_history: dict[str, dict[str, float]] = data.get("deposit_history", {})
+        self.deposit_start_block: dict[str, Any] | None = data.get("deposit_start_block")
         self.retention_days = retention_days
 
     def as_dict(self) -> dict[str, Any]:
@@ -58,6 +60,8 @@ class Wallet:
             "rce_daily_mean": self.rce_daily_mean,
             "rcem_override": self.rcem_override,
             "balance_year_override": self.balance_year_override,
+            "deposit_history": self.deposit_history,
+            "deposit_start_block": self.deposit_start_block,
         }
 
     def ingest_reading(
@@ -175,6 +179,40 @@ class Wallet:
     def clear_balance_year_override(self, year: str) -> None:
         """Clear the yearly balance override."""
         self.balance_year_override.pop(year, None)
+
+    def deposit_events(self) -> list[dict[str, Any]]:
+        """Monthly export/import events for deposit FIFO: manual corrections (deposit_history)
+        win over whatever this month's own tracked days would derive."""
+        months: dict[str, dict[str, float]] = dict(self.deposit_history)
+        derived: dict[str, dict[str, float]] = {}
+        for day_key, day in self.days.items():
+            month = day_key[:7]
+            if month in months:
+                continue
+            bucket = derived.setdefault(month, {"export": 0.0, "import": 0.0})
+            bucket["export"] += day.get("rev", 0.0)
+            bucket["import"] += day.get("cost", 0.0)
+        for month, totals in derived.items():
+            months[month] = {"export": round(totals["export"], 2), "import": round(totals["import"], 2)}
+        return [{"month": m, **months[m]} for m in sorted(months)]
+
+    def set_deposit_month(
+        self, month: str, export: float | None = None, import_: float | None = None, value: float | None = None
+    ) -> None:
+        """Set/overwrite one month's deposit export+import (manual correction or historical seed)."""
+        if value is None and export is None and import_ is None:
+            raise ValueError("set_deposit_month needs 'value' or 'export'/'import_'")
+        if value is not None and export is None and import_ is None:
+            export = round(max(value, 0.0), 2)
+            import_ = round(max(-value, 0.0), 2)
+        self.deposit_history[month] = {
+            "export": round(export or 0.0, 2),
+            "import": round(import_ or 0.0, 2),
+        }
+
+    def set_deposit_start_block(self, origin: str, amount: float) -> None:
+        """Set the one-time starting deposit block for months before any tracked history."""
+        self.deposit_start_block = {"origin": origin, "amount": round(amount, 2), "is_estimate": True}
 
     def prune(self, today_key: str) -> None:
         """Drop days and RCE means older than the retention window."""

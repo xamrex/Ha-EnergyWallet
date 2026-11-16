@@ -94,3 +94,54 @@ def test_round_trip_and_prune():
     w.days = {"2023-01-01": {"imp": 1}, "2026-10-14": {"imp": 2}}
     w.prune("2026-10-14")
     assert list(Wallet(w.as_dict()).days) == ["2026-10-14"]
+
+
+def test_deposit_events_prefers_history_over_derived_days():
+    w = Wallet()
+    w.days = {
+        "2026-11-01": {"cost": 5.0, "rev": 1.0},
+        "2026-11-15": {"cost": 3.0, "rev": 0.5},
+    }
+    w.deposit_history = {"2026-01": {"export": 5.40, "import": 5.40}}
+    events = w.deposit_events()
+    assert events == [
+        {"month": "2026-01", "export": 5.40, "import": 5.40},
+        {"month": "2026-11", "export": 1.5, "import": 8.0},
+    ]
+
+
+def test_deposit_events_history_wins_even_if_days_has_same_month():
+    w = Wallet()
+    w.days = {"2026-11-01": {"cost": 100.0, "rev": 0.0}}
+    w.deposit_history = {"2026-11": {"export": 1.5, "import": 8.0}}
+    assert w.deposit_events() == [{"month": "2026-11", "export": 1.5, "import": 8.0}]
+
+
+def test_set_deposit_month_with_value_splits_into_export_import():
+    w = Wallet()
+    w.set_deposit_month("2026-08", value=150.0)
+    assert w.deposit_history["2026-08"] == {"export": 150.0, "import": 0.0}
+    w.set_deposit_month("2026-08", value=-40.0)
+    assert w.deposit_history["2026-08"] == {"export": 0.0, "import": 40.0}
+
+
+def test_set_deposit_month_with_export_import_overwrites_not_accumulates():
+    w = Wallet()
+    w.set_deposit_month("2026-08", export=10.0, import_=2.0)
+    w.set_deposit_month("2026-08", export=20.0, import_=3.0)
+    assert w.deposit_history["2026-08"] == {"export": 20.0, "import": 3.0}
+
+
+def test_set_deposit_month_requires_value_or_export_import():
+    w = Wallet()
+    try:
+        w.set_deposit_month("2026-08")
+        assert False, "expected ValueError"
+    except ValueError:
+        pass
+
+
+def test_set_deposit_start_block():
+    w = Wallet()
+    w.set_deposit_start_block("2025-12", 787.32)
+    assert w.deposit_start_block == {"origin": "2025-12", "amount": 787.32, "is_estimate": True}
