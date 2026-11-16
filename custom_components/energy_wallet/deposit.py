@@ -98,3 +98,16 @@ def simulate(
 
     expire_pass(today)
     return buckets, ledger
+
+
+def status(bucket: dict[str, Any], today: date, warning_days: int) -> str:
+    """Classify one bucket as 'wygasl' (expired), 'wykorzystany' (used up),
+    'wygasa_wkrotce' (expiring soon) or 'aktywny' (active)."""
+    if bucket["expired"]:
+        return "wygasl"
+    if bucket["remaining"] <= 0.009:
+        return "wykorzystany"
+    days_left = (date.fromisoformat(bucket["expiry"]) - today).days
+    if days_left <= warning_days:
+        return "wygasa_wkrotce"
+    return "aktywny"
