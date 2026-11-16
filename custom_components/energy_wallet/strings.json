@@ -14,7 +14,15 @@
           "price_peak_depo": "Price Peak Hours Depo",
           "price_offpeak_depo": "Price OFF Peak Hours Depo",
           "sell_price_entity": "Sell Price",
-          "monthly_fee": "Monthly constant fee"
+          "monthly_fee": "Monthly constant fee",
+          "deposit_expiry_months": "Deposit block validity (months)",
+          "deposit_warning_days": "Deposit expiry warning (days)",
+          "g12_distribution_fixed": "G12 distribution - fixed",
+          "g12_sale_fixed": "G12 sale - fixed",
+          "g12_distribution_day": "G12 distribution - day",
+          "g12_distribution_night": "G12 distribution - night",
+          "g12_sale_day": "G12 sale - day",
+          "g12_sale_night": "G12 sale - night"
         },
         "data_description": {
           "peak_hours": "Comma separated ranges, e.g. 6:00-13:00,15:00-22:00",
@@ -24,7 +32,15 @@
           "price_peak_depo": "Deposit price per kWh during peak hours (subtracted from invoice)",
           "price_offpeak_depo": "Deposit price per kWh during off-peak hours (subtracted from invoice)",
           "sell_price_entity": "Sensor entity providing the current sell price (PLN/kWh)",
-          "monthly_fee": "Fixed monthly fee (gross, with VAT)"
+          "monthly_fee": "Fixed monthly fee (gross, with VAT)",
+          "deposit_expiry_months": "How many months a deposit block stays valid before it expires (net-billing).",
+          "deposit_warning_days": "Warn this many days before a deposit block expires.",
+          "g12_distribution_fixed": "Fixed monthly distribution cost (gross), for display only.",
+          "g12_sale_fixed": "Fixed monthly sale cost (gross), for display only.",
+          "g12_distribution_day": "Distribution cost per kWh, day rate (gross), for display only.",
+          "g12_distribution_night": "Distribution cost per kWh, night rate (gross), for display only.",
+          "g12_sale_day": "Sale cost per kWh, day rate (gross) - also used to compute remaining kWh in deposit.",
+          "g12_sale_night": "Sale cost per kWh, night rate (gross) - also used to compute remaining kWh in deposit."
         }
       }
     },
@@ -51,7 +67,15 @@
           "price_peak_depo": "Price Peak Hours Depo",
           "price_offpeak_depo": "Price OFF Peak Hours Depo",
           "sell_price_entity": "Sell Price",
-          "monthly_fee": "Monthly constant fee"
+          "monthly_fee": "Monthly constant fee",
+          "deposit_expiry_months": "Deposit block validity (months)",
+          "deposit_warning_days": "Deposit expiry warning (days)",
+          "g12_distribution_fixed": "G12 distribution - fixed",
+          "g12_sale_fixed": "G12 sale - fixed",
+          "g12_distribution_day": "G12 distribution - day",
+          "g12_distribution_night": "G12 distribution - night",
+          "g12_sale_day": "G12 sale - day",
+          "g12_sale_night": "G12 sale - night"
         },
         "data_description": {
           "peak_hours": "Comma separated ranges, e.g. 6:00-13:00,15:00-22:00",
@@ -61,7 +85,15 @@
           "price_peak_depo": "Deposit price per kWh during peak hours (subtracted from invoice)",
           "price_offpeak_depo": "Deposit price per kWh during off-peak hours (subtracted from invoice)",
           "sell_price_entity": "Sensor entity providing the current sell price (PLN/kWh)",
-          "monthly_fee": "Fixed monthly fee (gross, with VAT)"
+          "monthly_fee": "Fixed monthly fee (gross, with VAT)",
+          "deposit_expiry_months": "How many months a deposit block stays valid before it expires (net-billing).",
+          "deposit_warning_days": "Warn this many days before a deposit block expires.",
+          "g12_distribution_fixed": "Fixed monthly distribution cost (gross), for display only.",
+          "g12_sale_fixed": "Fixed monthly sale cost (gross), for display only.",
+          "g12_distribution_day": "Distribution cost per kWh, day rate (gross), for display only.",
+          "g12_distribution_night": "Distribution cost per kWh, night rate (gross), for display only.",
+          "g12_sale_day": "Sale cost per kWh, day rate (gross) - also used to compute remaining kWh in deposit.",
+          "g12_sale_night": "Sale cost per kWh, night rate (gross) - also used to compute remaining kWh in deposit."
         }
       }
     },
@@ -116,6 +148,18 @@
       },
       "invoice_with_deposit": {
         "name": "Invoice this month (with deposit)"
+      },
+      "deposit_oldest_block": {
+        "name": "Oldest deposit block"
+      },
+      "deposit_expiring_soon": {
+        "name": "Deposit expiring soon"
+      },
+      "deposit_blocks": {
+        "name": "Deposit blocks"
+      },
+      "deposit_actual_balance": {
+        "name": "Actual deposit balance"
       }
     }
   },

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -18,8 +19,20 @@ from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, PERIODS, SIGNAL_UPDATE
+from . import deposit as _deposit
+from .const import (
+    CONF_G12_DIST_DAY,
+    CONF_G12_DIST_FIXED,
+    CONF_G12_DIST_NIGHT,
+    CONF_G12_SALE_DAY,
+    CONF_G12_SALE_FIXED,
+    CONF_G12_SALE_NIGHT,
+    DOMAIN,
+    PERIODS,
+    SIGNAL_UPDATE,
+)
 from .manager import WalletManager
+from homeassistant.util import dt as dt_util
 
 CURRENCY = "PLN"
 PRICE_UNIT = "PLN/kWh"
@@ -168,11 +181,100 @@ DESCRIPTIONS: list[WalletSensorDescription] = [
 ]
 
 
+def _deposit_buckets_and_status(m: WalletManager):
+    buckets, ledger = m.deposit_buckets()
+    today = dt_util.now().date()
+    statuses = [_deposit.status(b, today, m.deposit_warning_days) for b in buckets]
+    return buckets, ledger, statuses
+
+
+def _oldest_active_bucket(m: WalletManager) -> dict[str, Any] | None:
+    buckets, _ledger, statuses = _deposit_buckets_and_status(m)
+    for b, s in zip(buckets, statuses):
+        if s in ("aktywny", "wygasa_wkrotce"):
+            return b
+    return None
+
+
+def _expiring_soon_buckets(m: WalletManager) -> list[dict[str, Any]]:
+    buckets, _ledger, statuses = _deposit_buckets_and_status(m)
+    return [b for b, s in zip(buckets, statuses) if s == "wygasa_wkrotce"]
+
+
+def _oldest_block_attrs(m: WalletManager) -> dict[str, Any]:
+    b = _oldest_active_bucket(m)
+    if b is None:
+        return {"info": "brak aktywnych blokow"}
+    days_left = (date.fromisoformat(b["expiry"]) - dt_util.now().date()).days
+    return {
+        "pochodzenie": b["origin"], "szacowany": b["is_estimate"],
+        "kwota_pierwotna": b["initial"], "wygasa": b["expiry"], "dni_do_wygasniecia": days_left,
+    }
+
+
+def _blocks_attrs(m: WalletManager) -> dict[str, Any]:
+    buckets, ledger, statuses = _deposit_buckets_and_status(m)
+    return {
+        "bloki": [
+            {
+                "pochodzenie": b["origin"], "wygasa": b["expiry"], "kwota_pierwotna": b["initial"],
+                "pozostalo": b["remaining"], "status": s, "szacowany": b["is_estimate"],
+            }
+            for b, s in zip(buckets, statuses)
+        ],
+        "historia_miesieczna": list(reversed(ledger)),
+        "suma_pozostalo": round(sum(b["remaining"] for b in buckets), 2),
+    }
+
+
+DEPOSIT_DESCRIPTIONS: list[WalletSensorDescription] = [
+    WalletSensorDescription(
+        key="deposit_oldest_block",
+        translation_key="deposit_oldest_block",
+        role="deposit",
+        device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=CURRENCY,
+        state_class=SensorStateClass.TOTAL,
+        value_fn=lambda m: round(b["remaining"], 2) if (b := _oldest_active_bucket(m)) else 0.0,
+        attrs_fn=lambda m: _oldest_block_attrs(m),
+    ),
+    WalletSensorDescription(
+        key="deposit_expiring_soon",
+        translation_key="deposit_expiring_soon",
+        role="deposit",
+        device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=CURRENCY,
+        value_fn=lambda m: round(sum(b["remaining"] for b in _expiring_soon_buckets(m)), 2),
+        attrs_fn=lambda m: {"bloki": [
+            {"pochodzenie": b["origin"], "pozostalo": b["remaining"], "wygasa": b["expiry"]}
+            for b in _expiring_soon_buckets(m)
+        ]},
+    ),
+    WalletSensorDescription(
+        key="deposit_blocks",
+        translation_key="deposit_blocks",
+        role="deposit",
+        value_fn=lambda m: sum(1 for s in _deposit_buckets_and_status(m)[2] if s in ("aktywny", "wygasa_wkrotce")),
+        attrs_fn=lambda m: _blocks_attrs(m),
+    ),
+    WalletSensorDescription(
+        key="deposit_actual_balance",
+        translation_key="deposit_actual_balance",
+        role="deposit",
+        device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=CURRENCY,
+        state_class=SensorStateClass.TOTAL,
+        value_fn=lambda m: m.deposit_actual_balance(),
+        attrs_fn=lambda m: {"suma_przepadla_dotychczas": round(sum(b["forfeited"] for b in m.deposit_buckets()[0]), 2)},
+    ),
+]
+
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     manager: WalletManager = entry.runtime_data
-    async_add_entities(WalletSensor(manager, entry, d) for d in DESCRIPTIONS)
+    async_add_entities(WalletSensor(manager, entry, d) for d in DESCRIPTIONS + DEPOSIT_DESCRIPTIONS)
 
 
 class WalletSensor(SensorEntity):

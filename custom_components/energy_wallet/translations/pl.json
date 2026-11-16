@@ -14,7 +14,15 @@
           "price_peak_depo": "Cena depozytu w szczycie",
           "price_offpeak_depo": "Cena depozytu poza szczytem",
           "sell_price_entity": "Cena sprzedaży",
-          "monthly_fee": "Opłata stała miesięczna"
+          "monthly_fee": "Opłata stała miesięczna",
+          "deposit_expiry_months": "Ważność bloku depozytu (miesiące)",
+          "deposit_warning_days": "Ostrzeżenie przed wygaśnięciem (dni)",
+          "g12_distribution_fixed": "G12 - dystrybucja stała",
+          "g12_sale_fixed": "G12 - sprzedaż stała",
+          "g12_distribution_day": "G12 - dystrybucja dzienna",
+          "g12_distribution_night": "G12 - dystrybucja nocna",
+          "g12_sale_day": "G12 - sprzedaż dzienna",
+          "g12_sale_night": "G12 - sprzedaż nocna"
         },
         "data_description": {
           "peak_hours": "Zakresy po przecinku, np. 6:00-13:00,15:00-22:00",
@@ -24,7 +32,15 @@
           "price_peak_depo": "Cena depozytu za kWh w szczycie (odejmowana od faktury)",
           "price_offpeak_depo": "Cena depozytu za kWh poza szczytem (odejmowana od faktury)",
           "sell_price_entity": "Sensor dostarczający aktualną cenę sprzedaży (PLN/kWh)",
-          "monthly_fee": "Stała opłata miesięczna (brutto, z VAT)"
+          "monthly_fee": "Stała opłata miesięczna (brutto, z VAT)",
+          "deposit_expiry_months": "Przez ile miesięcy ważny jest blok depozytu (net-billing).",
+          "deposit_warning_days": "Ile dni przed wygaśnięciem ostrzegać.",
+          "g12_distribution_fixed": "Stały miesięczny koszt dystrybucji (brutto), tylko do wyświetlenia.",
+          "g12_sale_fixed": "Stały miesięczny koszt sprzedaży (brutto), tylko do wyświetlenia.",
+          "g12_distribution_day": "Koszt dystrybucji za kWh, taryfa dzienna (brutto), tylko do wyświetlenia.",
+          "g12_distribution_night": "Koszt dystrybucji za kWh, taryfa nocna (brutto), tylko do wyświetlenia.",
+          "g12_sale_day": "Koszt sprzedaży za kWh, taryfa dzienna (brutto) - używany też do liczenia kWh pozostałych w depozycie.",
+          "g12_sale_night": "Koszt sprzedaży za kWh, taryfa nocna (brutto) - używany też do liczenia kWh pozostałych w depozycie."
         }
       }
     },
@@ -51,7 +67,15 @@
           "price_peak_depo": "Cena depozytu w szczycie",
           "price_offpeak_depo": "Cena depozytu poza szczytem",
           "sell_price_entity": "Cena sprzedaży",
-          "monthly_fee": "Opłata stała miesięczna"
+          "monthly_fee": "Opłata stała miesięczna",
+          "deposit_expiry_months": "Ważność bloku depozytu (miesiące)",
+          "deposit_warning_days": "Ostrzeżenie przed wygaśnięciem (dni)",
+          "g12_distribution_fixed": "G12 - dystrybucja stała",
+          "g12_sale_fixed": "G12 - sprzedaż stała",
+          "g12_distribution_day": "G12 - dystrybucja dzienna",
+          "g12_distribution_night": "G12 - dystrybucja nocna",
+          "g12_sale_day": "G12 - sprzedaż dzienna",
+          "g12_sale_night": "G12 - sprzedaż nocna"
         },
         "data_description": {
           "peak_hours": "Zakresy po przecinku, np. 6:00-13:00,15:00-22:00",
@@ -61,7 +85,15 @@
           "price_peak_depo": "Cena depozytu za kWh w szczycie (odejmowana od faktury)",
           "price_offpeak_depo": "Cena depozytu za kWh poza szczytem (odejmowana od faktury)",
           "sell_price_entity": "Sensor dostarczający aktualną cenę sprzedaży (PLN/kWh)",
-          "monthly_fee": "Stała opłata miesięczna (brutto, z VAT)"
+          "monthly_fee": "Stała opłata miesięczna (brutto, z VAT)",
+          "deposit_expiry_months": "Przez ile miesięcy ważny jest blok depozytu (net-billing).",
+          "deposit_warning_days": "Ile dni przed wygaśnięciem ostrzegać.",
+          "g12_distribution_fixed": "Stały miesięczny koszt dystrybucji (brutto), tylko do wyświetlenia.",
+          "g12_sale_fixed": "Stały miesięczny koszt sprzedaży (brutto), tylko do wyświetlenia.",
+          "g12_distribution_day": "Koszt dystrybucji za kWh, taryfa dzienna (brutto), tylko do wyświetlenia.",
+          "g12_distribution_night": "Koszt dystrybucji za kWh, taryfa nocna (brutto), tylko do wyświetlenia.",
+          "g12_sale_day": "Koszt sprzedaży za kWh, taryfa dzienna (brutto) - używany też do liczenia kWh pozostałych w depozycie.",
+          "g12_sale_night": "Koszt sprzedaży za kWh, taryfa nocna (brutto) - używany też do liczenia kWh pozostałych w depozycie."
         }
       }
     },
@@ -116,6 +148,18 @@
       },
       "invoice_with_deposit": {
         "name": "Faktura w tym miesiącu z depozytem"
+      },
+      "deposit_oldest_block": {
+        "name": "Najstarszy blok depozytu"
+      },
+      "deposit_expiring_soon": {
+        "name": "Depozyt wygasający wkrótce"
+      },
+      "deposit_blocks": {
+        "name": "Bloki depozytu"
+      },
+      "deposit_actual_balance": {
+        "name": "Rzeczywisty stan depozytu"
       }
     }
   },
