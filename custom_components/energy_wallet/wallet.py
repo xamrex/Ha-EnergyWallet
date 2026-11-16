@@ -8,8 +8,10 @@ priced once the price for that slot is known.
 from __future__ import annotations
 
 from collections.abc import Callable
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
+
+from . import deposit as _deposit
 
 IMPORT = "import"
 EXPORT = "export"
@@ -213,6 +215,10 @@ class Wallet:
     def set_deposit_start_block(self, origin: str, amount: float) -> None:
         """Set the one-time starting deposit block for months before any tracked history."""
         self.deposit_start_block = {"origin": origin, "amount": round(amount, 2), "is_estimate": True}
+
+    def deposit_buckets(self, expiry_months: int, today: date) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """FIFO deposit buckets + ledger, recomputed live from deposit_events()."""
+        return _deposit.simulate(self.deposit_start_block, self.deposit_events(), expiry_months, today)
 
     def prune(self, today_key: str) -> None:
         """Drop days and RCE means older than the retention window."""

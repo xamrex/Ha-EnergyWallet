@@ -145,3 +145,19 @@ def test_set_deposit_start_block():
     w = Wallet()
     w.set_deposit_start_block("2025-12", 787.32)
     assert w.deposit_start_block == {"origin": "2025-12", "amount": 787.32, "is_estimate": True}
+
+
+def test_deposit_buckets_combines_history_and_live_month():
+    from datetime import date as _date
+    w = Wallet()
+    w.set_deposit_start_block("2025-12", 100.0)
+    # Pure consumption in Jan (no export) so it doesn't open its own bucket - keeps this test
+    # focused on precedence + live derivation, not FIFO bucket-opening (already covered in
+    # tests/test_deposit.py).
+    w.set_deposit_month("2026-01", export=0.0, import_=5.40)
+    w.days = {"2026-11-05": {"cost": 2.0, "rev": 20.0}}  # live November, not yet closed
+    buckets, ledger = w.deposit_buckets(expiry_months=12, today=_date(2026, 11, 16))
+    assert [b["origin"] for b in buckets] == ["2025-12", "2026-11"]
+    assert buckets[0]["remaining"] == pytest.approx(100.0 - 5.40 - 2.0)  # drained by both imports
+    assert ledger[-1]["miesiac"] == "2026-11"
+    assert ledger[-1]["eksport"] == 20.0

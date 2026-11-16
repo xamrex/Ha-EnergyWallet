@@ -155,7 +155,9 @@ def test_simulate_import_bigger_than_all_buckets_reports_uncovered():
 
 
 def test_simulate_with_starting_block():
-    start = make_bucket("2025-12", 200.0, expiry_months=12, is_estimate=True)
+    # start_block is the raw {"origin", "amount"} shape Wallet.deposit_start_block stores -
+    # NOT a full make_bucket() dict (simulate() builds the bucket itself via make_bucket).
+    start = {"origin": "2025-12", "amount": 200.0}
     buckets, _ledger = simulate(start, [{"month": "2026-01", "export": 0.0, "import": 50.0}], 12, date(2026, 11, 16))
     assert buckets[0]["origin"] == "2025-12"
     assert buckets[0]["remaining"] == 150.0
@@ -324,7 +326,7 @@ Expected: `PASS` for every test, then `6 passed`. Also run on a clean machine la
 # append to tests/test_deposit.py
 from datetime import date
 
-from custom_components.energy_wallet.deposit import make_bucket, status
+from custom_components.energy_wallet.deposit import make_bucket, simulate, status
 
 
 def test_status_active_far_from_expiry():
@@ -349,9 +351,19 @@ def test_status_expired_flag_wins():
     assert status(b, date(2026, 11, 16), warning_days=60) == "wygasl"
 
 
-def test_status_exactly_on_expiry_day_is_still_active_not_expired():
-    b = make_bucket("2026-01", 100.0, expiry_months=1)  # expiry = 2026-02-28
-    assert status(b, date(2026, 2, 28), warning_days=0) == "aktywny"
+def test_simulate_bucket_not_forfeited_exactly_on_expiry_day_only_strictly_after():
+    # Caught during execution: a status()-level test with warning_days=0 and days_left=0 is a
+    # contradiction (both the "aktywny" and "wygasa_wkrotce" thresholds fire at days_left==0) -
+    # the real "exactly-on-expiry" boundary that matters is simulate()'s expire_pass, not status().
+    events = [{"month": "2026-01", "export": 100.0, "import": 0.0}]  # expiry = 2027-01-31
+    buckets_on, _ledger = simulate(None, events, 12, date(2027, 1, 31))
+    assert buckets_on[0]["expired"] is False
+    assert buckets_on[0]["remaining"] == 100.0
+
+    buckets_after, _ledger = simulate(None, events, 12, date(2027, 2, 1))
+    assert buckets_after[0]["expired"] is True
+    assert buckets_after[0]["remaining"] == 0.0
+    assert buckets_after[0]["forfeited"] == 100.0
 ```
 
 - [ ] **Step 2: Run to verify it fails** — same inline-script approach as Task 1 Step 2; expect
@@ -535,10 +547,16 @@ from datetime import date as _date
 def test_deposit_buckets_combines_history_and_live_month():
     w = Wallet()
     w.set_deposit_start_block("2025-12", 100.0)
-    w.set_deposit_month("2026-01", export=5.40, import_=5.40)
+    # Pure consumption in Jan (no export) so it doesn't open its own bucket - keeps this test
+    # focused on precedence + live derivation, not FIFO bucket-opening (already covered in
+    # tests/test_deposit.py). Caught during execution: an export>0 event always opens its own
+    # bucket even if its import empties a different (older) one - the first draft of this test
+    # wrongly assumed Jan's bucket would "disappear".
+    w.set_deposit_month("2026-01", export=0.0, import_=5.40)
     w.days = {"2026-11-05": {"cost": 2.0, "rev": 20.0}}  # live November, not yet closed
     buckets, ledger = w.deposit_buckets(expiry_months=12, today=_date(2026, 11, 16))
     assert [b["origin"] for b in buckets] == ["2025-12", "2026-11"]
+    assert buckets[0]["remaining"] == pytest.approx(100.0 - 5.40 - 2.0)  # drained by both imports
     assert ledger[-1]["miesiac"] == "2026-11"
     assert ledger[-1]["eksport"] == 20.0
 ```
