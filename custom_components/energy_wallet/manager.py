@@ -19,6 +19,10 @@ from .const import (
     CONF_DEPOSIT_EXPIRY_MONTHS,
     CONF_DEPOSIT_WARNING_DAYS,
     CONF_EXPORT_ENTITY,
+    CONF_G12_DIST_DAY,
+    CONF_G12_DIST_NIGHT,
+    CONF_G12_SALE_DAY,
+    CONF_G12_SALE_NIGHT,
     CONF_IMPORT_ENTITY,
     CONF_MONTHLY_FEE,
     CONF_OFFPEAK_HOURS,
@@ -47,13 +51,42 @@ DEFAULT_MAX_POWER_KW = 50.0
 
 
 def build_price_config(conf: dict[str, Any]) -> PriceConfig:
+    """Derive peak/off-peak buy and deposit prices from the G12 breakdown.
+
+    price_peak = g12_distribution_day + g12_sale_day
+    price_offpeak = g12_distribution_night + g12_sale_night
+    price_peak_depo = g12_sale_day
+    price_offpeak_depo = g12_sale_night
+
+    Legacy fallback: config entries created before the G12 fields existed
+    (price_peak/price_offpeak/price_peak_depo/price_offpeak_depo entered
+    directly, with no G12 breakdown at all) keep using those stored values
+    until the G12 fields are filled in via Options - so upgrading does not
+    silently zero out an existing wallet's pricing.
+    """
+    g12_dist_day = float(conf.get(CONF_G12_DIST_DAY) or 0)
+    g12_dist_night = float(conf.get(CONF_G12_DIST_NIGHT) or 0)
+    g12_sale_day = float(conf.get(CONF_G12_SALE_DAY) or 0)
+    g12_sale_night = float(conf.get(CONF_G12_SALE_NIGHT) or 0)
+
+    if g12_dist_day or g12_dist_night or g12_sale_day or g12_sale_night:
+        price_peak = g12_dist_day + g12_sale_day
+        price_offpeak = g12_dist_night + g12_sale_night
+        price_peak_depo = g12_sale_day
+        price_offpeak_depo = g12_sale_night
+    else:
+        price_peak = float(conf.get(CONF_PRICE_PEAK) or 0)
+        price_offpeak = float(conf.get(CONF_PRICE_OFFPEAK) or 0)
+        price_peak_depo = float(conf.get(CONF_PRICE_PEAK_DEPO) or 0)
+        price_offpeak_depo = float(conf.get(CONF_PRICE_OFFPEAK_DEPO) or 0)
+
     return PriceConfig(
         peak_windows=parse_windows(conf.get(CONF_PEAK_HOURS, "")),
         offpeak_windows=parse_windows(conf.get(CONF_OFFPEAK_HOURS, "")),
-        price_peak=float(conf.get(CONF_PRICE_PEAK) or 0),
-        price_offpeak=float(conf.get(CONF_PRICE_OFFPEAK) or 0),
-        price_peak_depo=float(conf.get(CONF_PRICE_PEAK_DEPO) or 0),
-        price_offpeak_depo=float(conf.get(CONF_PRICE_OFFPEAK_DEPO) or 0),
+        price_peak=price_peak,
+        price_offpeak=price_offpeak,
+        price_peak_depo=price_peak_depo,
+        price_offpeak_depo=price_offpeak_depo,
         monthly_fee=float(conf.get(CONF_MONTHLY_FEE) or 0),
     )
 
