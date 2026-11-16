@@ -12,6 +12,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_COMPONENT_LOADED, Platform
 from homeassistant.core import Event, HomeAssistant, ServiceCall, callback
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.loader import async_get_integration
@@ -51,6 +52,26 @@ CLEAR_BALANCE_YEAR_SCHEMA = vol.Schema(
     }
 )
 
+SERVICE_SET_DEPOSIT_MONTH = "set_deposit_month"
+SET_DEPOSIT_MONTH_SCHEMA = vol.Schema(
+    {
+        vol.Required("month"): vol.Match(r"^\d{4}-\d{2}$"),
+        vol.Optional("value"): vol.Coerce(float),
+        vol.Optional("export"): vol.Coerce(float),
+        vol.Optional("import"): vol.Coerce(float),
+        vol.Optional("config_entry_id"): cv.string,
+    }
+)
+
+SERVICE_SET_DEPOSIT_STARTING_BLOCK = "set_deposit_starting_block"
+SET_DEPOSIT_STARTING_BLOCK_SCHEMA = vol.Schema(
+    {
+        vol.Required("origin"): vol.Match(r"^\d{4}-\d{2}$"),
+        vol.Required("amount"): vol.Coerce(float),
+        vol.Optional("config_entry_id"): cv.string,
+    }
+)
+
 type EnergyWalletConfigEntry = ConfigEntry[WalletManager]
 
 
@@ -86,6 +107,31 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     hass.services.async_register(
         DOMAIN, SERVICE_CLEAR_BALANCE_YEAR, clear_balance_year, schema=CLEAR_BALANCE_YEAR_SCHEMA
+    )
+
+    async def set_deposit_month(call: ServiceCall) -> None:
+        entry_id = call.data.get("config_entry_id")
+        if "value" not in call.data and "export" not in call.data and "import" not in call.data:
+            raise ServiceValidationError("Provide 'value', or 'export'/'import'.")
+        for entry in hass.config_entries.async_loaded_entries(DOMAIN):
+            if entry_id in (None, entry.entry_id):
+                entry.runtime_data.set_deposit_month(
+                    call.data["month"], call.data.get("export"), call.data.get("import"), call.data.get("value")
+                )
+
+    hass.services.async_register(
+        DOMAIN, SERVICE_SET_DEPOSIT_MONTH, set_deposit_month, schema=SET_DEPOSIT_MONTH_SCHEMA
+    )
+
+    async def set_deposit_starting_block(call: ServiceCall) -> None:
+        entry_id = call.data.get("config_entry_id")
+        for entry in hass.config_entries.async_loaded_entries(DOMAIN):
+            if entry_id in (None, entry.entry_id):
+                entry.runtime_data.set_deposit_starting_block(call.data["origin"], call.data["amount"])
+
+    hass.services.async_register(
+        DOMAIN, SERVICE_SET_DEPOSIT_STARTING_BLOCK, set_deposit_starting_block,
+        schema=SET_DEPOSIT_STARTING_BLOCK_SCHEMA,
     )
     return True
 

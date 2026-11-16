@@ -237,6 +237,50 @@
           "description": "Limit to one wallet; all when empty."
         }
       }
+    },
+    "set_deposit_month": {
+      "name": "Set deposit month",
+      "description": "Set/overwrite one month's deposit export+import - use to seed historical months or correct a closed one.",
+      "fields": {
+        "month": {
+          "name": "Month",
+          "description": "Month in YYYY-MM format."
+        },
+        "value": {
+          "name": "Value (net)",
+          "description": "Net PLN amount; positive = export, negative = import. Mutually exclusive with export/import."
+        },
+        "export": {
+          "name": "Export",
+          "description": "PLN to add to this month's deposit block."
+        },
+        "import": {
+          "name": "Import",
+          "description": "PLN to deduct (FIFO) from the oldest active blocks for this month."
+        },
+        "config_entry_id": {
+          "name": "Wallet",
+          "description": "Limit to one wallet; all when empty."
+        }
+      }
+    },
+    "set_deposit_starting_block": {
+      "name": "Set deposit starting block",
+      "description": "Set the one-time starting deposit block for months before any tracked/seeded history.",
+      "fields": {
+        "origin": {
+          "name": "Origin month",
+          "description": "Month in YYYY-MM format."
+        },
+        "amount": {
+          "name": "Amount",
+          "description": "Starting balance in PLN."
+        },
+        "config_entry_id": {
+          "name": "Wallet",
+          "description": "Limit to one wallet; all when empty."
+        }
+      }
     }
   }
 }

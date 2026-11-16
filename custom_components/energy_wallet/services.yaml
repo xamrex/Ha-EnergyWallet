@@ -56,3 +56,69 @@ clear_balance_year:
       selector:
         config_entry:
           integration: energy_wallet
+
+set_deposit_month:
+  fields:
+    month:
+      required: true
+      example: "2026-08"
+      selector:
+        text:
+    value:
+      required: false
+      example: 150.0
+      selector:
+        number:
+          min: -100000
+          max: 100000
+          step: any
+          mode: box
+          unit_of_measurement: PLN
+    export:
+      required: false
+      example: 544.39
+      selector:
+        number:
+          min: 0
+          max: 100000
+          step: any
+          mode: box
+          unit_of_measurement: PLN
+    import:
+      required: false
+      example: 0.0
+      selector:
+        number:
+          min: 0
+          max: 100000
+          step: any
+          mode: box
+          unit_of_measurement: PLN
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: energy_wallet
+
+set_deposit_starting_block:
+  fields:
+    origin:
+      required: true
+      example: "2025-12"
+      selector:
+        text:
+    amount:
+      required: true
+      example: 787.32
+      selector:
+        number:
+          min: 0
+          max: 100000
+          step: any
+          mode: box
+          unit_of_measurement: PLN
+    config_entry_id:
+      required: false
+      selector:
+        config_entry:
+          integration: energy_wallet

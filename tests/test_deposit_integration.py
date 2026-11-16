@@ -103,3 +103,28 @@ async def test_g12_and_kwh_remaining_sensors(hass: HomeAssistant, setup_states, 
 async def test_kwh_remaining_is_none_without_price(hass: HomeAssistant, setup_states, aioclient_mock) -> None:
     entry = await _setup_entry(hass, aioclient_mock, BASE)  # no g12_sale_day/night -> default 0
     assert value(hass, entry, "deposit_kwh_remaining_day").state == "unknown"
+
+
+async def test_set_deposit_month_service_updates_sensor(hass: HomeAssistant, setup_states, aioclient_mock) -> None:
+    entry = await _setup_entry(hass, aioclient_mock, BASE)
+
+    await hass.services.async_call(
+        DOMAIN, "set_deposit_month", {"month": "2026-06", "export": 544.39, "import": 0.0}, blocking=True
+    )
+    await hass.async_block_till_done()
+    blocks = value(hass, entry, "deposit_blocks")
+    assert blocks.attributes["suma_pozostalo"] == pytest.approx(544.39)
+
+    with pytest.raises(Exception):
+        await hass.services.async_call(DOMAIN, "set_deposit_month", {"month": "2026-07"}, blocking=True)
+
+
+async def test_set_deposit_starting_block_service(hass: HomeAssistant, setup_states, aioclient_mock) -> None:
+    entry = await _setup_entry(hass, aioclient_mock, BASE)
+
+    await hass.services.async_call(
+        DOMAIN, "set_deposit_starting_block", {"origin": "2025-12", "amount": 787.32}, blocking=True
+    )
+    await hass.async_block_till_done()
+    actual = value(hass, entry, "deposit_actual_balance")
+    assert float(actual.state) == pytest.approx(787.32)

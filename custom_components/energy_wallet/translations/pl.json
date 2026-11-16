@@ -237,6 +237,50 @@
           "description": "Ogranicz do jednego portfela; puste = wszystkie."
         }
       }
+    },
+    "set_deposit_month": {
+      "name": "Ustaw miesiąc depozytu",
+      "description": "Ustaw/nadpisz eksport i pobór depozytu dla jednego miesiąca - użyj do wprowadzenia historii albo poprawienia zamkniętego miesiąca.",
+      "fields": {
+        "month": {
+          "name": "Miesiąc",
+          "description": "Miesiąc w formacie RRRR-MM."
+        },
+        "value": {
+          "name": "Wartość (netto)",
+          "description": "Kwota netto w zł; dodatnia = eksport, ujemna = pobór. Wyklucza się z export/import."
+        },
+        "export": {
+          "name": "Eksport",
+          "description": "Ile zł dopisać do bloku depozytu tego miesiąca."
+        },
+        "import": {
+          "name": "Pobór",
+          "description": "Ile zł odjąć (FIFO) od najstarszych aktywnych bloków za ten miesiąc."
+        },
+        "config_entry_id": {
+          "name": "Portfel",
+          "description": "Ogranicz do jednego portfela; puste = wszystkie."
+        }
+      }
+    },
+    "set_deposit_starting_block": {
+      "name": "Ustaw blok startowy depozytu",
+      "description": "Ustaw jednorazowy blok startowy depozytu dla miesięcy sprzed śledzonej/wprowadzonej historii.",
+      "fields": {
+        "origin": {
+          "name": "Miesiąc startowy",
+          "description": "Miesiąc w formacie RRRR-MM."
+        },
+        "amount": {
+          "name": "Kwota",
+          "description": "Stan startowy w zł."
+        },
+        "config_entry_id": {
+          "name": "Portfel",
+          "description": "Ogranicz do jednego portfela; puste = wszystkie."
+        }
+      }
     }
   }
 }
