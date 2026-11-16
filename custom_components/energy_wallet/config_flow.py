@@ -24,10 +24,6 @@ from .const import (
     CONF_MONTHLY_FEE,
     CONF_OFFPEAK_HOURS,
     CONF_PEAK_HOURS,
-    CONF_PRICE_OFFPEAK,
-    CONF_PRICE_OFFPEAK_DEPO,
-    CONF_PRICE_PEAK,
-    CONF_PRICE_PEAK_DEPO,
     CONF_SELL_PRICE_ENTITY,
     DOMAIN,
 )
@@ -43,7 +39,7 @@ PRICE = selector.NumberSelector(
     selector.NumberSelectorConfig(min=0, max=10, step="any", mode="box", unit_of_measurement="PLN/kWh")
 )
 MONTHLY = selector.NumberSelector(
-    selector.NumberSelectorConfig(min=0, max=10000, step=0.01, mode="box", unit_of_measurement="zł")
+    selector.NumberSelectorConfig(min=0, max=10000, step="any", mode="box", unit_of_measurement="zł")
 )
 HOURS_TEXT = selector.TextSelector()
 MONTHS_INT = selector.NumberSelector(selector.NumberSelectorConfig(min=1, max=36, step=1, mode="box"))
@@ -63,10 +59,6 @@ def full_schema(defaults: dict[str, Any]) -> vol.Schema:
             vol.Required(CONF_EXPORT_ENTITY, **_default(defaults.get(CONF_EXPORT_ENTITY))): ENERGY_SENSOR,
             vol.Required(CONF_PEAK_HOURS, **_default(defaults.get(CONF_PEAK_HOURS, "6:00-13:00,15:00-22:00"))): HOURS_TEXT,
             vol.Required(CONF_OFFPEAK_HOURS, **_default(defaults.get(CONF_OFFPEAK_HOURS, "13:00-15:00,22:00-6:00"))): HOURS_TEXT,
-            vol.Required(CONF_PRICE_PEAK, **_default(defaults.get(CONF_PRICE_PEAK))): PRICE,
-            vol.Required(CONF_PRICE_OFFPEAK, **_default(defaults.get(CONF_PRICE_OFFPEAK))): PRICE,
-            vol.Required(CONF_PRICE_PEAK_DEPO, **_default(defaults.get(CONF_PRICE_PEAK_DEPO))): PRICE,
-            vol.Required(CONF_PRICE_OFFPEAK_DEPO, **_default(defaults.get(CONF_PRICE_OFFPEAK_DEPO))): PRICE,
             vol.Required(CONF_SELL_PRICE_ENTITY, **_default(defaults.get(CONF_SELL_PRICE_ENTITY))): ENTITY_SELECTOR,
             vol.Required(CONF_MONTHLY_FEE, **_default(defaults.get(CONF_MONTHLY_FEE, 0))): MONTHLY,
             vol.Optional(CONF_DEPOSIT_EXPIRY_MONTHS, **_default(defaults.get(CONF_DEPOSIT_EXPIRY_MONTHS, 12))): MONTHS_INT,
