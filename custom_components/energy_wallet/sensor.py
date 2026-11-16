@@ -270,6 +270,50 @@ DEPOSIT_DESCRIPTIONS: list[WalletSensorDescription] = [
 ]
 
 
+def _g12(conf_key: str, translation: str) -> WalletSensorDescription:
+    return WalletSensorDescription(
+        key=translation,
+        translation_key=translation,
+        role="g12",
+        device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement=CURRENCY,
+        suggested_display_precision=4,
+        value_fn=lambda m, k=conf_key: round(float(m.conf.get(k) or 0), 4),
+    )
+
+
+DEPOSIT_DESCRIPTIONS += [
+    _g12(CONF_G12_DIST_FIXED, "g12_distribution_fixed"),
+    _g12(CONF_G12_SALE_FIXED, "g12_sale_fixed"),
+    _g12(CONF_G12_DIST_DAY, "g12_distribution_day"),
+    _g12(CONF_G12_DIST_NIGHT, "g12_distribution_night"),
+    _g12(CONF_G12_SALE_DAY, "g12_sale_day"),
+    _g12(CONF_G12_SALE_NIGHT, "g12_sale_night"),
+    WalletSensorDescription(
+        key="deposit_kwh_remaining_day",
+        translation_key="deposit_kwh_remaining_day",
+        role="deposit",
+        native_unit_of_measurement="kWh",
+        value_fn=lambda m: (
+            round(m.deposit_actual_balance() / float(m.conf[CONF_G12_SALE_DAY]), 1)
+            if m.conf.get(CONF_G12_SALE_DAY)
+            else None
+        ),
+    ),
+    WalletSensorDescription(
+        key="deposit_kwh_remaining_night",
+        translation_key="deposit_kwh_remaining_night",
+        role="deposit",
+        native_unit_of_measurement="kWh",
+        value_fn=lambda m: (
+            round(m.deposit_actual_balance() / float(m.conf[CONF_G12_SALE_NIGHT]), 1)
+            if m.conf.get(CONF_G12_SALE_NIGHT)
+            else None
+        ),
+    ),
+]
+
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:

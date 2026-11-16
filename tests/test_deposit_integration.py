@@ -81,3 +81,25 @@ async def test_deposit_sensors_reflect_manual_month(hass: HomeAssistant, setup_s
     assert oldest.attributes["pochodzenie"] == "2025-12"
     actual = value(hass, entry, "deposit_actual_balance")
     assert float(actual.state) == pytest.approx(expected_total)
+
+
+async def test_g12_and_kwh_remaining_sensors(hass: HomeAssistant, setup_states, aioclient_mock) -> None:
+    data = {**BASE, "g12_distribution_fixed": 34.33, "g12_sale_day": 0.6221, "g12_sale_night": 0.4716}
+    entry = await _setup_entry(hass, aioclient_mock, data)
+
+    assert float(value(hass, entry, "g12_distribution_fixed").state) == pytest.approx(34.33)
+    assert float(value(hass, entry, "g12_sale_fixed").state) == pytest.approx(0.0)  # default when omitted
+
+    entry.runtime_data.set_deposit_month("2026-01", export=62.21, import_=0.0)
+    await hass.async_block_till_done()
+    # deposit_actual_balance() is 62.21 (one untouched bucket, no consumption) - both prices are
+    # configured in `data` above, so both kWh sensors must compute, not read as "unknown".
+    kwh_day = value(hass, entry, "deposit_kwh_remaining_day")
+    assert float(kwh_day.state) == pytest.approx(round(62.21 / 0.6221, 1))  # == 100.0
+    kwh_night = value(hass, entry, "deposit_kwh_remaining_night")
+    assert float(kwh_night.state) == pytest.approx(round(62.21 / 0.4716, 1))  # == 131.9
+
+
+async def test_kwh_remaining_is_none_without_price(hass: HomeAssistant, setup_states, aioclient_mock) -> None:
+    entry = await _setup_entry(hass, aioclient_mock, BASE)  # no g12_sale_day/night -> default 0
+    assert value(hass, entry, "deposit_kwh_remaining_day").state == "unknown"

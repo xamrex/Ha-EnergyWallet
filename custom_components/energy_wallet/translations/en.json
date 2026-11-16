@@ -160,6 +160,30 @@
       },
       "deposit_actual_balance": {
         "name": "Actual deposit balance"
+      },
+      "g12_distribution_fixed": {
+        "name": "G12 distribution - fixed"
+      },
+      "g12_sale_fixed": {
+        "name": "G12 sale - fixed"
+      },
+      "g12_distribution_day": {
+        "name": "G12 distribution - day"
+      },
+      "g12_distribution_night": {
+        "name": "G12 distribution - night"
+      },
+      "g12_sale_day": {
+        "name": "G12 sale - day"
+      },
+      "g12_sale_night": {
+        "name": "G12 sale - night"
+      },
+      "deposit_kwh_remaining_day": {
+        "name": "kWh remaining in deposit (day)"
+      },
+      "deposit_kwh_remaining_night": {
+        "name": "kWh remaining in deposit (night)"
       }
     }
   },

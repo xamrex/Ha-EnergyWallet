@@ -160,6 +160,30 @@
       },
       "deposit_actual_balance": {
         "name": "Rzeczywisty stan depozytu"
+      },
+      "g12_distribution_fixed": {
+        "name": "G12 - koszt dystrybucji stały"
+      },
+      "g12_sale_fixed": {
+        "name": "G12 - koszt sprzedaży stały"
+      },
+      "g12_distribution_day": {
+        "name": "G12 - koszt dystrybucji dzienna"
+      },
+      "g12_distribution_night": {
+        "name": "G12 - koszt dystrybucji nocna"
+      },
+      "g12_sale_day": {
+        "name": "G12 - koszt sprzedaży dzienna"
+      },
+      "g12_sale_night": {
+        "name": "G12 - koszt sprzedaży nocna"
+      },
+      "deposit_kwh_remaining_day": {
+        "name": "Ile kWh zostało w depozycie (dzień)"
+      },
+      "deposit_kwh_remaining_night": {
+        "name": "Ile kWh zostało w depozycie (noc)"
       }
     }
   },
